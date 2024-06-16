@@ -37,3 +37,10 @@ Note: Make relevant config changes in tsconfig.json
 ```
 npm run dev
 ```
+
+6.
+```
+For Eslint 
+`npx eslint . --fix`
+
+```
