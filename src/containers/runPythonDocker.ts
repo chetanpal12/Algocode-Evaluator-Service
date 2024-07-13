@@ -19,7 +19,7 @@ async function runPython(code:string,inputTestCase: string) {
         '-c',
         runCommand
     ]); 
-    
+
     await pythonDockerContainer.start();
 
     console.log("Started the docker container");
@@ -36,18 +36,32 @@ async function runPython(code:string,inputTestCase: string) {
         console.log("reading the buffer chunk by chunk");
         rawLogBuffer.push(chunk);
     });
-    loggerStream.on('end', () => {
-        console.log("stream end");
-        console.log(rawLogBuffer);
-        //we have array of buffer so we are creating a single buffer object by concatinating 
-        //this is a buffer constuctor if you pass array then it will create the buffer for you 
-        const completeBuffer = Buffer.concat(rawLogBuffer);
-        const decodedStream = decodeDockerStream(completeBuffer);
-        console.log("decoded stream",decodedStream);
-        console.log("stdout",decodedStream.stdout);
 
+    // loggerStream.on('end', () => {
+    //     console.log("stream end");
+    //     console.log(rawLogBuffer);
+    //     //we have array of buffer so we are creating a single buffer object by concatinating 
+    //     //this is a buffer constuctor if you pass array then it will create the buffer for you 
+    //     const completeBuffer = Buffer.concat(rawLogBuffer);
+    //     const decodedStream = decodeDockerStream(completeBuffer);
+    //     console.log("decoded stream",decodedStream);
+    //     console.log("stdout",decodedStream.stdout);
+
+    // });
+
+    // return pythonDockerContainer;
+    await new Promise((res) => {
+        loggerStream.on('end', () => {
+            console.log(rawLogBuffer);
+            const completeBuffer = Buffer.concat(rawLogBuffer);
+            const decodedStream = decodeDockerStream(completeBuffer);
+            console.log(decodedStream);
+            console.log(decodedStream.stdout);
+            res(decodeDockerStream);
+        });
     });
 
-    return pythonDockerContainer;
+    // remove the container when done with it
+    await pythonDockerContainer.remove();
 }
 export default runPython;
