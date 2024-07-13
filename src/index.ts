@@ -3,6 +3,7 @@ import express,{Express} from 'express';
 
 import bullBoardAdapter from "./config/bullBoardConfig";
 import serverConfig from './config/serverConfig';
+import runPython from "./containers/runPythonDocker";
 // import sampleQueueProducers from './producers/sampleQueueProducers';
 import apiRouter from './routes';
 import SampleWorker from './worker/sampleWorker';
@@ -34,4 +35,19 @@ app.listen(serverConfig.PORT,()=>{
     // position: "SDE 2 L61",
     // locatiion: "Remote | BLR | Noida"
     // },1);
+
+    // const code:string="print('hello')";
+
+    // runPython(code);
+    const code = `x = input()
+y = input()
+print("value of x is", x)
+print("value of y is", y)
+`;
+
+const inputCase = `100
+200
+`;
+
+  runPython(code, inputCase);
 });
