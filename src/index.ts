@@ -3,12 +3,15 @@ import express,{Express} from 'express';
 
 import bullBoardAdapter from "./config/bullBoardConfig";
 import serverConfig from './config/serverConfig';
-import runCpp from "./containers/runCpp";
+import submissionQueueProducer from "./producers/submissionQueueProducer";
+// import runCpp from "./containers/runCpp";
 // import runJava from "./containers/runJavaDocker";
 // import runPython from "./containers/runPythonDocker";
 // import sampleQueueProducers from './producers/sampleQueueProducers';
 import apiRouter from './routes';
+import { submission_queue } from "./utils/constants";
 import SampleWorker from './worker/sampleWorker';
+import SubmissionWorker from "./worker/SubmissionWorker";
 
 const app:Express=express();
 
@@ -23,6 +26,8 @@ app.listen(serverConfig.PORT,()=>{
   console.log(`server started at port ${serverConfig.PORT}`);
   console.log(`Bull Board is available at http://localhost:${serverConfig.PORT}/bullboard/ui`);
   SampleWorker('SampleQueue');
+
+  SubmissionWorker(submission_queue);
 
   // sampleQueueProducers('SampleJob', {
   //     name: "Sarthak",
@@ -100,7 +105,13 @@ app.listen(serverConfig.PORT,()=>{
 const inputCase = `10
 `;
 
-  runCpp(code, inputCase);
+submissionQueueProducer({"1234": {
+  language: "CPP",
+  inputCase,
+  code
+}});
+
+  // runCpp(code, inputCase);
 
   // runPython(code, inputCase);
   // runJava(code,inputCase);
