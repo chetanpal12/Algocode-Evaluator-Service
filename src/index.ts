@@ -10,7 +10,7 @@ import serverConfig from './config/serverConfig';
 // import sampleQueueProducers from './producers/sampleQueueProducers';
 import apiRouter from './routes';
 import { submission_queue } from "./utils/constants";
-import SampleWorker from './worker/sampleWorker';
+// import SampleWorker from './worker/sampleWorker';
 import SubmissionWorker from "./worker/SubmissionWorker";
 
 const app:Express=express();
@@ -25,7 +25,7 @@ app.use('/bullboard/ui', bullBoardAdapter.getRouter());
 app.listen(serverConfig.PORT,()=>{
   console.log(`server started at port ${serverConfig.PORT}`);
   console.log(`Bull Board is available at http://localhost:${serverConfig.PORT}/bullboard/ui`);
-  SampleWorker('SampleQueue');
+  // SampleWorker('SampleQueue');
 
   SubmissionWorker(submission_queue);
 
