@@ -1,7 +1,7 @@
 import CodeExecutorStrategy, { ExecutionResponse } from '../types/CodeExecutorStrategy';
 import { JAVA_IMAGE } from '../utils/constants';
 import createContainer from './containerFactory';
-import decodeDockerStream from './dockerHelper';
+import {fetchDecodedStream} from './dockerHelper';
 import pullImage from './pullImage';
 
 class JavaExecutor implements CodeExecutorStrategy {
@@ -40,7 +40,7 @@ class JavaExecutor implements CodeExecutorStrategy {
         });
 
         try {
-            const codeResponse : string = await this.fetchDecodedStream(loggerStream, rawLogBuffer);
+            const codeResponse : string = await fetchDecodedStream(loggerStream, rawLogBuffer);
             if(codeResponse.trim() === outputCase.trim()) {
                 return {output: codeResponse, status: "SUCCESS"};
             } else {
@@ -50,6 +50,7 @@ class JavaExecutor implements CodeExecutorStrategy {
             console.log("Error occurred", error);
             if(error === "TLE") {
                 await javaDockerContainer.kill();
+                return {output: error as string, status: "TLE"}
             }
             return {output: error as string, status: "ERROR"}
         } finally {
@@ -57,30 +58,30 @@ class JavaExecutor implements CodeExecutorStrategy {
         }
     }
 
-    fetchDecodedStream(loggerStream: NodeJS.ReadableStream, rawLogBuffer: Buffer[]) : Promise<string> {
-        // TODO: May be moved to the docker helper util
+    // fetchDecodedStream(loggerStream: NodeJS.ReadableStream, rawLogBuffer: Buffer[]) : Promise<string> {
+    //     // TODO: May be moved to the docker helper util
        
-        return new Promise((res, rej) => {
-            const timeout = setTimeout(() => {
-                console.log("Timeout called");
-                rej("TLE");
-            }, 2000);
-            loggerStream.on('end', () => {
-                // This callback executes when the stream ends
-                clearTimeout(timeout);
-                console.log(rawLogBuffer);
-                const completeBuffer = Buffer.concat(rawLogBuffer);
-                const decodedStream = decodeDockerStream(completeBuffer);
-                console.log(decodedStream);
-                console.log(decodedStream.stdout);
-                if(decodedStream.stderr) {
-                    rej(decodedStream.stderr);
-                } else {
-                    res(decodedStream.stdout);
-                }
-            });
-        })
-    }
+    //     return new Promise((res, rej) => {
+    //         const timeout = setTimeout(() => {
+    //             console.log("Timeout called");
+    //             rej("TLE");
+    //         }, 2000);
+    //         loggerStream.on('end', () => {
+    //             // This callback executes when the stream ends
+    //             clearTimeout(timeout);
+    //             console.log(rawLogBuffer);
+    //             const completeBuffer = Buffer.concat(rawLogBuffer);
+    //             const decodedStream = decodeDockerStream(completeBuffer);
+    //             console.log(decodedStream);
+    //             console.log(decodedStream.stdout);
+    //             if(decodedStream.stderr) {
+    //                 rej(decodedStream.stderr);
+    //             } else {
+    //                 res(decodedStream.stdout);
+    //             }
+    //         });
+    //     })
+    // }
 
 }
 
